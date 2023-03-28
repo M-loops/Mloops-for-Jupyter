@@ -122,7 +122,7 @@ define([
 
             // start of model dropdown
             //
-            var select = $('<select></select>')
+            var select = $('<select id="selectColumn"></select>')
                 .css({
                     'margin-bottom': '10px',
                 });
@@ -169,13 +169,12 @@ define([
                     Jupyter.notebook.insert_cell_below('code', index).set_text('mloops_data');
                     Jupyter.notebook.select(index+1);
                     Jupyter.notebook.focus_cell();
-                    selectedModel = parseInt(select.val());
-                    selectedTarget = document.getElementById("selectColumn1").value
-                    console.log(selectedTarget);
+                    selectedModel = document.getElementById("selectColumn").value;
+                    window.selectedTarget = String(document.getElementById("selectColumn1").value);
 
                     for (res in queryResult) {
                         if (queryResult[res][0] == selectedModel) {
-                            var model_name = queryResult[res][1];
+                            window.qr = queryResult
                             var model_id = queryResult[res][0];
                             var pycode = `
                             mloops_data =  `+ cellCode + `
@@ -184,6 +183,7 @@ define([
                             import numpy as np
                             import json
                             import random
+                            from scipy import stats 
                             
                             # Define the connection details
                             server = 'mloops.database.windows.net'
@@ -197,16 +197,16 @@ define([
                             cursor = cnxn.cursor()
                             cursor.execute("""select re.recommendationName, re.recommendationFunc, i.insightname, r.Score, r.threshold, i.InsightShowfunc, i.Insightfunc, r.IsNum
                             from Rules as r
-                            join Insight as i on r.Insightid=r.Insightid
+                            join Insight as i on r.Insightid=i.Insightid
                             join Recommendation as re on  re.RecommendationId=r.RecommendationId
                             where r.modelId="""+ str(`+ model_id + `) +" order by r.Score desc")
                             
                             
                             def form(func,table ,var, tar):
                                 rand_i = str(random.randint(0,99999))
-                                return func.replace('$',table + "['"+var+"']").replace('#',table + "['"+tar+"']").replace('@',table).replace('~',table + "['"+var+"_"+rand_i+"']")
+                                return func.replace('$$',"'"+var+"'").replace('$',table + "['"+var+"']").replace('#',table + "['"+tar+"']").replace('@',table).replace('~',table + "['"+var+"_"+rand_i+"']")
 
-                            target_=str(`+ selectedTarget + `)
+                            target_='`+ window.selectedTarget + `'
                             
                             # Formating
                             for var in mloops_data.columns:
@@ -223,25 +223,31 @@ define([
                             rows = cursor.fetchall()
                             table_ =[]
                             for row in rows:
-                                if (row[5]== ''):
-                                    graph = ''
-                                else:
-                                    graph = eval(form(row[5],f'{mloops_data=}'.split('=')[0],variable_,target_))
                                 if ('$' not in row[1]):
-                                    row_to_list = {"Variable" : "All" ,"Insight Name": row[2], "Insight Graph": graph,"Recommendation Name": row[0], "Add Recommendation": form(row[1],f'{mloops_data=}'.split('=')[0],"",target_)}
+                                    row_to_list = {"Variable" : "All" ,"Insight Name": row[2], "Insight Graph": '',"Recommendation Name": row[0], "Add Recommendation": form(row[1],f'{mloops_data=}'.split('=')[0],'',target_)}
                                     table_.append(row_to_list)
                                 elif (row[7]):
                                     for variable_ in mloops_data.select_dtypes(include=np.number).columns.tolist():
+                                        if (row[5]== ''):
+                                            graph = ''
+                                        else:
+                                            graph = str(eval(form(row[5],f'{mloops_data=}'.split('=')[0],variable_,target_)))
                                         if(eval(form(row[6],f'{mloops_data=}'.split('=')[0],variable_,target_)+ row[4])):
                                             row_to_list = {"Variable" : variable_ ,"Insight Name": row[2], "Insight Graph": graph,"Recommendation Name": row[0], "Add Recommendation": form(row[1],f'{mloops_data=}'.split('=')[0],variable_,target_)}
                                             table_.append(row_to_list)
                                 else:
+                                    
                                     for variable_ in mloops_data.select_dtypes(exclude=np.number).columns.tolist():
+                                        if (row[5]== ''):
+                                            graph = ''
+                                        else:
+                                            graph = str(eval(form(row[5],f'{mloops_data=}'.split('=')[0],variable_,target_)))
                                         if(eval(form(row[6],f'{mloops_data=}'.split('=')[0],variable_,target_) + row[4])):
                                             row_to_list = {"Variable" : variable_ ,"Insight Name": row[2], "Insight Graph": graph,"Recommendation Name": row[0], "Add Recommendation": form(row[1],f'{mloops_data=}'.split('=')[0],variable_,target_)}
                                             table_.append(row_to_list)
                             print(json.dumps(table_))
                             `
+                            console.log(pycode)
                             executePython(pycode).then(function(out) {  
                                 queryResult = JSON.parse(out);                                  
                                 // Builds the HTML Table out of myList.
