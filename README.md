@@ -17,6 +17,7 @@ Other Requirements - python libraries:
 - json
 - numpy
 - random
+- ODBC Driver 17 for SQL Server: https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver16
 
 ## Installing an Extension
 To install a Jupyter Notebook extension, you can use either the conda package manager or pip package manager. The conda command is recommended if you installed Jupyter Notebook using Anaconda or Miniconda, while the pip command is recommended for other installations.
@@ -26,23 +27,18 @@ Open a command prompt or terminal window.
 Identify the extension you want to install. You can find a list of extensions on the Jupyter Notebook extensions website or through a search engine.
 
 Install the extension using either conda or pip. For example, to install the Table of Contents (TOC) extension using conda, you can run the following command:
-
 conda install -c conda-forge jupyter_contrib_nbextensions
 
 If you prefer to use pip, you can run:
-
 pip install jupyter_contrib_nbextensions
 
-After the installation is complete, you need to enable the extension in Jupyter Notebook. To do this, launch Jupyter Notebook by typing jupyter notebook in a command prompt or terminal window.
+After the instalation is complete, go to the path: <your_python_folder>/site-packages/jupyter_contrib_nbextensions/nbextensions
 
-In the Jupyter Notebook interface, click on the Nbextensions tab, which should be located on the upper-right corner of the interface.
+Download the Mloops extension and move it to the nbextensions folder.
 
-In the Nbextensions tab, you should see a list of available extensions. Find the extension you installed in step 3 and click on the checkbox next to it to enable it.
+Finally, enable the extension by executing this command in the terminal:
+sudo jupyter nbextension install Mloops-for-Jupyter-main && jupyter nbextension enable Mloops-for-Jupyter-main/mloops
 
-Finally, click the Save button at the bottom of the Nbextensions tab to save your changes. The extension should now be installed and enabled in your Jupyter Notebook environment.
-
-## Conclusion
-Congratulations! You have successfully installed a Jupyter Notebook extension. Extensions can greatly enhance your productivity and make your data science workflow more efficient. If you encounter any issues, make sure to consult the extension's documentation or seek help from the community.
-
-
-
+## Congratulations! 
+### You have successfully installed our Jupyter Notebook extension.
+### We would love to hear your feedback for improvment at - info@m-loops.com
