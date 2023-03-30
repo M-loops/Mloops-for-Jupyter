@@ -6,18 +6,15 @@ Link: README.md
 Description:
 
 # Installing The Mloops Jupyter Notebook Extensions
-Jupyter Notebook is a powerful open-source tool for data science and scientific computing. One of its great features is the ability to extend its functionality through the use of extensions. In this guide, we will walk you through the process of installing Jupyter Notebook extensions on your system.
 
 ## Prerequisites and Requirements 
 Before proceeding, you should make sure that you have Jupyter Notebook installed on your system. If you don't have Jupyter Notebook installed, you can download and install it by following the instructions on the official Jupyter Notebook website: https://jupyter.org/install.
 
 Other Requirements - python libraries:
-- pyodbc
 - pandas
-- json
 - numpy
 - random
-- ODBC Driver 17 for SQL Server: https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver16
+- scipy
 
 ## Installing an Extension
 To install a Jupyter Notebook extension, you can use either the conda package manager or pip package manager. The conda command is recommended if you installed Jupyter Notebook using Anaconda or Miniconda, while the pip command is recommended for other installations.
