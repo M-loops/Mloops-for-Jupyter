@@ -7,33 +7,9 @@ define([
 ], function (Jupyter, $, OutputArea, CodeCell, Cell) {
 
     python_mssql_bridge = `
-    import pyodbc 
-    import pandas as pd
-    import json
-    
-    # Define the connection details
-    server = 'mloops.database.windows.net'
-    database = 'mloops'
-    username = 'readonlyuser'
-    password = 'pwMloops2'
-    driver = '{ODBC Driver 17 for SQL Server}' # Make sure to use the correct driver version
-    
-    # Establish the connection
-    cnxn = pyodbc.connect(f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
-    
-    def get_models():
-        cursor = cnxn.cursor()
-        cursor.execute('SELECT ModelId, modelName FROM models')
-        rows = cursor.fetchall()
-        
-        modified_rows = []
-        for row in rows:
-            row_to_list = [elem for elem in row]
-            modified_rows.append(row_to_list)
-    
-        return json.dumps(modified_rows)
-    
-    print(get_models())
+    import requests
+    x = requests.get('https://mloops-for-jupyter-server.azurewebsites.net/models/')
+    print(x.text)
     `
 
     function executePython(python) {
@@ -178,28 +154,15 @@ define([
                             var model_id = queryResult[res][0];
                             var pycode = `
                             mloops_data =  `+ cellCode + `
-                            import pyodbc 
                             import pandas as pd
                             import numpy as np
                             import json
                             import random
                             from scipy import stats 
                             
-                            # Define the connection details
-                            server = 'mloops.database.windows.net'
-                            database = 'mloops'
-                            username = 'readonlyuser'
-                            password = 'pwMloops2'
-                            driver = '{ODBC Driver 17 for SQL Server}' # Make sure to use the correct driver version
-                            
-                            # Establish the connection
-                            cnxn = pyodbc.connect(f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}')
-                            cursor = cnxn.cursor()
-                            cursor.execute("""select re.recommendationName, re.recommendationFunc, i.insightname, r.Score, r.threshold, i.InsightShowfunc, i.Insightfunc, r.IsNum
-                            from Rules as r
-                            join Insight as i on r.Insightid=i.Insightid
-                            join Recommendation as re on  re.RecommendationId=r.RecommendationId
-                            where r.modelId="""+ str(`+ model_id + `) +" order by r.Score desc")
+                            import requests
+                            x = requests.get('https://mloops-for-jupyter-server.azurewebsites.net/recommendations/`+ model_id + `')
+                            rows = json.loads(x.text)
                             
                             
                             def form(func,table ,var, tar):
@@ -220,7 +183,6 @@ define([
                                     continue
                             
                             # Creating the table
-                            rows = cursor.fetchall()
                             table_ =[]
                             for row in rows:
                                 if ('$' not in row[1]):
